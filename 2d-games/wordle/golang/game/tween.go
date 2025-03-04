@@ -62,3 +62,20 @@ func (t *Tween) Update(dt float64) {
 		}
 	}
 }
+
+func (t *Tween) Complete() {
+	t.elapsed = t.duration
+	t.isCompleted = true
+
+	if t.completedFunc != nil {
+		t.completedFunc()
+	}
+}
+
+func UpdateTween(current *Tween, new *Tween) *Tween {
+	if current != nil {
+		current.Complete()
+	}
+
+	return new
+}

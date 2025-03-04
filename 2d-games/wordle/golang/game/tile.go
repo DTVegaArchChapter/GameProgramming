@@ -1,12 +1,17 @@
 package wordle
 
 import (
+	"container/list"
 	"image/color"
 	"math"
 	"unicode"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/text/v2"
+)
+
+const (
+	flipDuration   = 0.5 * 60
+	bounceDuration = 0.2 * 60
 )
 
 type tile struct {
@@ -18,10 +23,15 @@ type tile struct {
 	r      rune
 	status CharacterStatus
 
-	isFlipping   bool
-	flipProgress float64
+	text            *TextRenderer
+	fontColor       color.Color
+	borderColor     color.Color
+	backgroundColor color.Color
 
-	tween *Tween
+	flipped bool
+
+	geoM  *ebiten.GeoM
+	tween *list.List
 	board *board
 }
 
@@ -29,71 +39,66 @@ func newTile(col, row int, board *board) *tile {
 	size := 60
 
 	return &tile{
-		x:            44 + float64(col*(size+3)+3),
-		y:            float64(row*(size+3) + 3),
-		size:         size,
-		col:          col,
-		row:          row,
-		board:        board,
-		isFlipping:   false,
-		flipProgress: 1,
+		x:               44 + float64(col*(size+3)+3),
+		y:               float64(row*(size+3) + 3),
+		size:            size,
+		col:             col,
+		row:             row,
+		board:           board,
+		text:            NewTextRenderer(RobotoBoldFontName, color.Black, 30),
+		fontColor:       color.Black,
+		borderColor:     lightGrayColor,
+		backgroundColor: color.White,
+		tween:           list.New(),
 	}
 }
 
 func (t *tile) Update() {
-	if t.tween != nil {
-		t.tween.Update(1)
+	t.updateBackgroundColor()
+
+	t.fontColor = color.Black
+	if t.backgroundColor != color.White {
+		t.fontColor = color.White
+	}
+
+	if t.backgroundColor != color.White {
+		t.borderColor = t.backgroundColor
+	} else if t.r > 0 || t.board.calcPos(t.col, t.row) == t.board.pos {
+		t.borderColor = grayColor
+	} else {
+		t.borderColor = lightGrayColor
+	}
+
+	if e := t.tween.Front(); e != nil {
+		tween := e.Value.(*Tween)
+		tween.Update(1)
+		if tween.isCompleted {
+			t.tween.Remove(e)
+		}
 	}
 }
 
 func (t *tile) Draw(screen *ebiten.Image) {
 	outerRect := ebiten.NewImage(t.size, t.size)
-	pos := t.board.calcPos(t.col, t.row)
-	borderColor := lightGrayColor
-	if pos == t.board.pos {
-		borderColor = grayColor
-	}
+	outerRect.Fill(t.borderColor)
 
-	outerRect.Fill(borderColor)
-
-	innerRect := ebiten.NewImage(t.size-2, t.size-2)
-	tileColor := getTileColor(t)
-
-	innerRect.Fill(tileColor)
+	innerRect := ebiten.NewImage(t.size-4, t.size-4)
+	innerRect.Fill(t.backgroundColor)
 
 	r := t.r
 	if r != 0 {
-		fontColor := color.Black
-		if tileColor != color.White {
-			fontColor = color.White
-		}
-
-		textOp := &text.DrawOptions{}
-		textOp.GeoM.Translate(float64(innerRect.Bounds().Max.X)/2, float64(innerRect.Bounds().Max.Y)/2)
-		textOp.ColorScale.ScaleWithColor(fontColor)
-		textOp.PrimaryAlign = text.AlignCenter
-		textOp.SecondaryAlign = text.AlignCenter
-		text.Draw(innerRect, string(unicode.TurkishCase.ToUpper(r)), &text.GoTextFace{
-			Source: mplusRegularTextFaceSource,
-			Size:   float64(fontSize),
-		}, textOp)
+		t.text.SetColor(t.fontColor)
+		t.text.Draw(innerRect, string(unicode.TurkishCase.ToUpper(r)), innerRect.Bounds().Dx()/2, innerRect.Bounds().Dy()/2)
 	}
 
 	op := &ebiten.DrawImageOptions{}
-
-	op.GeoM.Translate(1, 1)
+	op.GeoM.Translate(2, 2)
 	outerRect.DrawImage(innerRect, op)
 
 	op.GeoM.Reset()
 
-	if t.isFlipping {
-		angle := t.flipProgress * math.Pi
-		scale := math.Cos(angle)
-		skew := math.Sin(angle) * 0.075
-		op.GeoM.Translate(-float64(t.size/2), 0)
-		op.GeoM.Skew(skew, 0)
-		op.GeoM.Scale(math.Abs(scale), 1)
-		op.GeoM.Translate(float64(t.size/2), 0)
+	if t.geoM != nil {
+		op.GeoM.Concat(*t.geoM)
 	}
 
 	op.GeoM.Translate(t.x, t.y)
@@ -112,6 +117,22 @@ func (t *tile) clearRune() {
 
 func (t *tile) setRune(r rune) {
 	t.r = r
+
+	if r > 0 {
+		t.tween.PushBack(NewTween(0, 1, 0.125*60, LinearTweenFunc, func(v float64) {
+			scale := 1 + math.Sin(v*math.Pi)*0.06
+			middle := float64(t.size) / 2
+
+			geoM := &ebiten.GeoM{}
+			geoM.Translate(-middle, -middle)
+			geoM.Scale(scale, scale)
+			geoM.Translate(middle, middle)
+
+			t.geoM = geoM
+		}, func() {
+			t.geoM = nil
+		}))
+	}
 }
 
 func (t *tile) clearStatus() {
@@ -130,36 +151,66 @@ func (t *tile) isEmpty() bool {
 	return t.r == 0
 }
 
-func (t *tile) startShake() {
+func (t *tile) shake() {
+	if t.tween.Len() > 0 {
+		return
+	}
+
 	x := t.x
-	t.tween = NewTween(0, 1, 0.5*60, LinearTweenFunc, func(v float64) {
+	t.tween.PushBack(NewTween(0, 1, 0.5*60, LinearTweenFunc, func(v float64) {
 		t.x = x + math.Sin(v*3*2*math.Pi)*5
 	}, func() {
 		t.x = x
-		t.tween = nil
-	})
+	}))
 }
 
-func (r *tile) flip() {
-	r.isFlipping = true
+func (t *tile) flip() {
+	t.appendDelayTween(func(c int) float64 { return float64(c) * flipDuration })
+	t.tween.PushBack(NewTween(0, 1, 0.5*60, LinearTweenFunc, func(v float64) {
+		angle := v * math.Pi
+		scale := math.Cos(angle)
+
+		geoM := &ebiten.GeoM{}
+		geoM.Translate(0, -float64(t.size/2))
+		geoM.Scale(1, math.Abs(scale))
+		geoM.Translate(0, float64(t.size/2))
+
+		t.geoM = geoM
+
+		t.flipped = math.Cos(v*math.Pi) < 0
+	}, func() {
+		t.geoM = nil
+	}))
 }
 
-func getTileColor(t *tile) color.Color {
-	var defaultColor color.Color = color.White
+func (t *tile) celebrateWin() {
+	y := t.y
+	t.appendDelayTween(func(c int) float64 { return (float64(t.board.cols-c-1) * flipDuration) + float64(c)*bounceDuration })
+	t.tween.PushBack(NewTween(0, 1, 0.5*60, LinearTweenFunc,
+		func(v float64) {
+			t.y = y - math.Sin(v*math.Pi)*10
+		}, func() {
+			t.y = y
+			t.board.tileWinAnimationFinishedCounter++
+		}))
+}
 
-	if t.isFlipping {
-		t.flipProgress -= 0.075
-		if t.flipProgress <= 0 {
-			t.isFlipping = false
-			t.flipProgress = 0
-		}
-	}
-
-	if math.Cos(t.flipProgress*math.Pi) < 0 {
-		return defaultColor
-	} else {
+func (t *tile) updateBackgroundColor() {
+	if t.flipped {
 		st := t.status
 
-		return st.getColor()
+		t.backgroundColor = st.getColor()
+	} else {
+		t.backgroundColor = color.White
 	}
+}
+
+func (t *tile) appendDelayTween(delayFunc func(c int) float64) {
+	colNum := t.col % t.board.cols
+	delay := delayFunc(colNum)
+	if delay == 0 {
+		delay = 1
+	}
+
+	t.tween.PushBack(NewTween(0, 1, delay, LinearTweenFunc, func(v float64) {}, func() {}))
 }

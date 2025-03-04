@@ -1,6 +1,8 @@
 package wordle
 
 import (
+	"image/color"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
@@ -15,6 +17,7 @@ type Game struct {
 	keyboard *keyboard
 	keys     []ebiten.Key
 	runes    []rune
+	text     *TextRenderer
 }
 
 func NewGame() *Game {
@@ -22,6 +25,7 @@ func NewGame() *Game {
 	g := &Game{
 		keyboard: k,
 		board:    newBoard(k),
+		text:     NewTextRenderer(RobotoBoldFontName, redColor, 18),
 	}
 
 	return g
@@ -61,10 +65,17 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	g.keyboard.draw(screen)
 
 	if g.board.wordNotFound {
-		drawText(screen, "Not in word list", 1.75)
+		g.setMessage(screen, "Not in Word List!!", redColor)
 	}
 
-	if g.board.state != gameInProgress {
-		drawText(screen, TurkishUpper.String(string(g.board.answer)), 2)
+	if g.board.state == gameLost {
+		g.setMessage(screen, g.board.GetCorrectAnswer(), redColor)
+	} else if g.board.state == gameWon && g.board.IsWinAnimationFinished() {
+		g.setMessage(screen, "You Won!!", greenColor)
 	}
+}
+
+func (g *Game) setMessage(screen *ebiten.Image, messageText string, color color.Color) {
+	g.text.SetColor(color)
+	g.text.Draw(screen, messageText, screen.Bounds().Dx()/2, int(g.board.maxY)+30)
 }

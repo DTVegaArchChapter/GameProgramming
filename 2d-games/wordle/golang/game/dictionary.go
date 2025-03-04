@@ -10,8 +10,12 @@ import (
 //go:embed dict.txt
 var dictTxt string
 
+//go:embed target.txt
+var targetTxt string
+
 type dictionary struct {
-	Words []string
+	Words   []string
+	targets []string
 }
 
 func NewDictionary() *dictionary {
@@ -23,11 +27,12 @@ func NewDictionary() *dictionary {
 }
 
 func (d *dictionary) init() {
-	d.Words = loadWords()
+	d.Words = loadWords(dictTxt)
+	d.targets = loadWords(targetTxt)
 }
 
 func (d *dictionary) GetRandomWord() string {
-	return d.Words[rand.Intn(len(d.Words))]
+	return d.targets[rand.Intn(len(d.targets))]
 }
 
 func (d *dictionary) WordExists(w string) bool {
@@ -37,8 +42,8 @@ func (d *dictionary) WordExists(w string) bool {
 	return i < len(d.Words) && d.Words[i] == wUpper
 }
 
-func loadWords() []string {
-	w := strings.Split(strings.ReplaceAll(dictTxt, "\r", ""), "\n")
+func loadWords(target string) []string {
+	w := strings.Split(strings.ReplaceAll(target, "\r", ""), "\n")
 	toUpper(&w)
 	sort.Strings(w)
 

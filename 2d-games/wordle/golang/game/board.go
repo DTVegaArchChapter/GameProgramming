@@ -28,6 +28,9 @@ type board struct {
 	state        gameState
 	inputRune    rune
 	inputKey     ebiten.Key
+	maxY         float64
+
+	tileWinAnimationFinishedCounter int
 }
 
 func newBoard(keyboard *keyboard) *board {
@@ -47,12 +50,14 @@ func newBoard(keyboard *keyboard) *board {
 }
 
 func (b *board) Update() {
-	if b.inputKey == ebiten.KeyBackspace {
-		b.deleteCurrentChar()
-	} else if b.inputKey == ebiten.KeyEnter || b.inputKey == ebiten.KeyNumpadEnter {
-		b.checkCurrentWord()
-	} else if b.inputRune > 0 {
-		b.addChar(b.inputRune)
+	if b.state == gameInProgress {
+		if b.inputKey == ebiten.KeyBackspace {
+			b.deleteCurrentChar()
+		} else if b.inputKey == ebiten.KeyEnter || b.inputKey == ebiten.KeyNumpadEnter {
+			b.checkCurrentWord()
+		} else if b.inputRune > 0 {
+			b.addChar(b.inputRune)
+		}
 	}
 
 	for _, t := range b.tiles {
@@ -64,6 +69,59 @@ func (b *board) Draw(screen *ebiten.Image) {
 	for _, t := range b.tiles {
 		t.Draw(screen)
 	}
+}
+
+func (b *board) GetCorrectAnswer() string {
+	return TurkishUpper.String(string(b.answer))
+}
+
+func CheckAnswerRunes(answer, correct []rune) []CharacterStatus {
+	result := make([]CharacterStatus, len(answer))
+	l := []rune{}
+
+	for i := 0; i < len(answer); i++ {
+		a := answer[i]
+		c := correct[i]
+		if unicode.TurkishCase.ToUpper(a) == unicode.TurkishCase.ToUpper(c) {
+			result[i] = CharacterStatusCorrectLocation
+		} else {
+			l = append(l, c)
+		}
+	}
+
+	for i := 0; i < len(answer); i++ {
+		r := result[i]
+
+		if r == CharacterStatusCorrectLocation {
+			continue
+		}
+
+		a := answer[i]
+
+		if contains(l, a) {
+			result[i] = CharacterStatusWrongLocation
+
+			l = removeRune(l, a)
+		} else {
+			result[i] = CharacterStatusNotPresent
+		}
+	}
+
+	return result
+}
+
+func (b *board) IsWinAnimationFinished() bool {
+	return b.tileWinAnimationFinishedCounter == b.cols
+}
+
+func calculateMaxY(tiles []*tile) float64 {
+	tileLen := len(tiles)
+	if tileLen == 0 {
+		return 0
+	}
+
+	lastTile := tiles[tileLen-1]
+	return lastTile.y + float64(lastTile.size)
 }
 
 func (b *board) deleteCurrentChar() bool {
@@ -109,7 +167,7 @@ func (b *board) checkCurrentWord() {
 		b.wordNotFound = true
 
 		for i := b.pos - b.cols + 1; i < b.pos+1; i++ {
-			b.tiles[i].startShake()
+			b.tiles[i].shake()
 		}
 
 		return
@@ -137,6 +195,10 @@ func (b *board) checkCurrentWord() {
 
 	if won {
 		b.state = gameWon
+
+		for i := b.pos - b.cols + 1; i < b.pos+1; i++ {
+			b.tiles[i].celebrateWin()
+		}
 	} else if b.pos >= len(b.tiles)-1 {
 		b.state = gameLost
 	}
@@ -181,6 +243,7 @@ func (b *board) init() {
 	b.state = gameInProgress
 	b.pos = 0
 	b.tiles = tiles
+	b.maxY = calculateMaxY(tiles)
 	b.answer = []rune(b.dict.GetRandomWord())
 }
 
@@ -190,41 +253,6 @@ func (b *board) isPosInLastChar() bool {
 
 func (b *board) calcPos(col, row int) int {
 	return (row * b.cols) + col
-}
-
-func CheckAnswerRunes(answer, correct []rune) []CharacterStatus {
-	result := make([]CharacterStatus, len(answer))
-	l := []rune{}
-
-	for i := 0; i < len(answer); i++ {
-		a := answer[i]
-		c := correct[i]
-		if unicode.TurkishCase.ToUpper(a) == unicode.TurkishCase.ToUpper(c) {
-			result[i] = CharacterStatusCorrectLocation
-		} else {
-			l = append(l, c)
-		}
-	}
-
-	for i := 0; i < len(answer); i++ {
-		r := result[i]
-
-		if r == CharacterStatusCorrectLocation {
-			continue
-		}
-
-		a := answer[i]
-
-		if contains(l, a) {
-			result[i] = CharacterStatusWrongLocation
-
-			l = removeRune(l, a)
-		} else {
-			result[i] = CharacterStatusNotPresent
-		}
-	}
-
-	return result
 }
 
 func removeRune(l []rune, r rune) []rune {
