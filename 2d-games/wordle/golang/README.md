@@ -1,4 +1,4 @@
-# Türkçe Worldle Oyunu
+# Türkçe Wordle Oyunu
 
 ## Açıklama
 
@@ -50,7 +50,7 @@ func (g *Game) Update() error {
 // Draw fonksiyonu içerisinde oyun nesneleri oyun ekranı üzerinde çizdirilir.
 // 60 Hz'lik görüntülemede saniyede 60 kere çağırılır
 func (g *Game) Draw(screen *ebiten.Image) {
-    // Write your game's rendering.
+
 }
 
 // outsideWidth ve outsideHeight window'un boyutlarıdır.
