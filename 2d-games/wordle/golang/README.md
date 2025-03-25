@@ -88,50 +88,50 @@ func main() {
 func (g *Game) Draw(screen *ebiten.Image) { 
     // ekranın tamamını beyaz renkle doldurur. Normalde ekran siyahtır.
     // ekran üzerinde gösterilecek tüm çizdirme işlemleri screen imajı üzerine yapılır.
-	screen.Fill(color.White)
+    screen.Fill(color.White)
 
     // kutu boyutu
-	size := 40
+    size := 40
 
     // Kutuların başlangıç x ve y koordinatı
-	x := 40.
-	y := 10.
+    x := 40.
+    y := 10.
 
     // 2 kolon 5 satır kutu çizdiriyoruz
-	for row := 0; row < 2; row++ {
-		for col := 0; col < 5; col++ {
+    for row := 0; row < 2; row++ {
+        for col := 0; col < 5; col++ {
             // kolonların koordinatlarını satır ve kolon numaralarına göre belirliyoruz. kutular arasında 5 birim boşluk bırakıyoruz.
-			rX := x + float64(col*(size+5))
-			rY := y + float64(row*(size+5))
+            rX := x + float64(col*(size+5))
+            rY := y + float64(row*(size+5))
 
             // ebiten.NewImage bizim için boş bir imaj oluşturur
             // bu boş imajın rengini ve kordinatlarını ayarlayıp screen imajı üzerine çizdireğiz
             // dış ve iç olmak üzere 2 dikdörtgen çizdireceğiz. dış dikdörtgenin içi gri renkte, iç dikdörtgenin içi de beyaz renkte olacak. iç dikdörtgenin boyutu, dış dikdörtgenin boyutundan 4 birim az olacak. İç dikdörtgeni, dış dikdörtgenin tam ortasına yerleştireceğiz. böylece ortası beyaz gri çerçeveli bir dikdörtgen elde etmiş olacağız
-			outerRect := ebiten.NewImage(size, size)
+            outerRect := ebiten.NewImage(size, size)
             // dış dikdörtgenin içini gri renkle dolduruyoruz
-			outerRect.Fill(color.RGBA{R: 185, G: 185, B: 185, A: 255})
+            outerRect.Fill(color.RGBA{R: 185, G: 185, B: 185, A: 255})
 
             // ebiten.DrawImageOptions imajı ekrana çizerken, çizdirilecek imaj üzerinde pozisyon (Translate), öteleme (Scale), döndürme (Rotate) gibi ayarlamalar yapmamızı sağlar.
-			outerOpt := &ebiten.DrawImageOptions{}
+            outerOpt := &ebiten.DrawImageOptions{}
             // dış dikdörtgeni rX, rY koordinatlarına öteliyoruz
-			outerOpt.GeoM.Translate(rX, rY)
+            outerOpt.GeoM.Translate(rX, rY)
 
             // dış dikdörtgeni ekrana çizdiriyoruz
-			screen.DrawImage(outerRect, outerOpt)
+            screen.DrawImage(outerRect, outerOpt)
 
             // iç dikdörtgenin boyutunu dış dikdörtgenin boyutundan 4 birim küçük olarak yaratıyoruz. dış dikdörtgenin ortasına yerliştirdiğimizde kenarlarda 2 birim gri çerçeve oluşmuş olacak
-			innerRect := ebiten.NewImage(size-4, size-4)
+            innerRect := ebiten.NewImage(size-4, size-4)
             // iç dikdörtgenin içini beyaz renkle dolduruyoruz
-			innerRect.Fill(color.White)
+            innerRect.Fill(color.White)
 
             innerOpt := &ebiten.DrawImageOptions{}
             // iç dikdörtgeni, dış dikdörtgenin ortasına öteliyoruz
-			innerOpt.GeoM.Translate(rX+2, rY+2)
+            innerOpt.GeoM.Translate(rX+2, rY+2)
 
             // iç dikdörtgeni ekrana çizdiriyoruz
-			screen.DrawImage(innerRect, innerOpt)
-		}
-	}
+            screen.DrawImage(innerRect, innerOpt)
+        }
+    }
 }
 ```
 
