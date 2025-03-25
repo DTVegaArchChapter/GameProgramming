@@ -22,8 +22,8 @@ Eğer 6 denemede hedef kelimeyi tahmin edemezseniz oyunu kaybedersiniz.
 
 ## Kullanılan Kütüphaneler
 
-- [Ebitengine V2](https://github.com/hajimehoshi/ebiten)
-- [etxt](https://github.com/tinne26/etxt)
+- [Ebitengine V2](https://github.com/hajimehoshi/ebiten) - Game Engine
+- [etxt](https://github.com/tinne26/etxt) - Text Rendering
 
 ## Nasıl Çalıştırılır?
 
@@ -36,6 +36,14 @@ go run main.go
 ## Neler Öğrendik?
 
 ### Game Loop
+
+Ebitengine'de `game loop` inşa etmek için bir `struct` tipi yanımlayıp `ebiten.Game` interface'ini implemente ettikten sonra nesneyi yaratıp `ebiten.RunGame()` fonksiyonuna vermek gerekiyor.
+
+`ebiten.Game` interface'ini implemente etmek için `Update`, `Draw` ve `Layout` fonksiyonlarını tanımlamak gerekmektedir.
+
+- `Layout` fonksiyonu window yeniden boyutlandırıldığında oyunun nasıl ölçekleneceğini belirlemenize izin veren fonksiyondur.
+- `Update` fonksiyonu oyun nesnelerinin state'lerinin güncellendiği fonksiyondur. Ebitengine varsayılan olarak `Update` fonksiyonunu saniyede 60 kere çağırır. Bu değer `ebiten.SetTPS` fonksiyonu çağırılarak değiştirilebilir.
+- `Draw` fonkisyonu oyun nesnelerinin oyun ekranına çizdirildiği fonksiyondur. Bu fonksiyonun saniyede kaç kere çağırıldığı kullanılan ekranın `HZ` değerine göre belirlenir. Örneğin 60 Hz'lik görüntülemede saniyede 60 kere çağırılır.
 
 ```golang
 // ebiten.Game interface'ini implemente eder.
@@ -54,7 +62,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 }
 
 // outsideWidth ve outsideHeight window'un boyutlarıdır.
-// Sabit bir boyut dönebiliriz ya da outsideWidth ve outsideHeight üzerinden hesaplama yapabiliriz.
+// Sabit bir boyut dönebiliriz ya da outsideWidth ve outsideHeight üzerinden hesaplama yapıp değer dönebiliriz.
 // screenWidth, screenHeight ile outsideWidth, outsideHeight farklı olsa bile görüntü window'a sığacak şekilde otomatik olarak ölçeklenir.
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
     return 320, 240
@@ -71,3 +79,70 @@ func main() {
     }
 }
 ```
+
+### Grafik
+
+#### Kutu Çizdirme
+
+```golang
+func (g *Game) Draw(screen *ebiten.Image) { 
+    // ekranın tamamını beyaz renkle doldurur. Normalde ekran siyahtır.
+    // ekran üzerinde gösterilecek tüm çizdirme işlemleri screen imajı üzerine yapılır.
+	screen.Fill(color.White)
+
+    // kutu boyutu
+	size := 40
+
+    // Kutuların başlangıç x ve y koordinatı
+	x := 40.
+	y := 10.
+
+    // 2 kolon 5 satır kutu çizdiriyoruz
+	for row := 0; row < 2; row++ {
+		for col := 0; col < 5; col++ {
+            // kolonların koordinatlarını satır ve kolon numaralarına göre belirliyoruz. kutular arasında 5 birim boşluk bırakıyoruz.
+			rX := x + float64(col*(size+5))
+			rY := y + float64(row*(size+5))
+
+            // ebiten.NewImage bizim için boş bir imaj oluşturur
+            // bu boş imajın rengini ve kordinatlarını ayarlayıp screen imajı üzerine çizdireğiz
+            // dış ve iç olmak üzere 2 dikdörtgen çizdireceğiz. dış dikdörtgenin içi gri renkte, iç dikdörtgenin içi de beyaz renkte olacak. iç dikdörtgenin boyutu, dış dikdörtgenin boyutundan 4 birim az olacak. İç dikdörtgeni, dış dikdörtgenin tam ortasına yerleştireceğiz. böylece ortası beyaz gri çerçeveli bir dikdörtgen elde etmiş olacağız
+			outerRect := ebiten.NewImage(size, size)
+            // dış dikdörtgenin içini gri renkle dolduruyoruz
+			outerRect.Fill(color.RGBA{R: 185, G: 185, B: 185, A: 255})
+
+            // ebiten.DrawImageOptions imajı ekrana çizerken, çizdirilecek imaj üzerinde pozisyon (Translate), öteleme (Scale), döndürme (Rotate) gibi ayarlamalar yapmamızı sağlar.
+			outerOpt := &ebiten.DrawImageOptions{}
+            // dış dikdörtgeni rX, rY koordinatlarına öteliyoruz
+			outerOpt.GeoM.Translate(rX, rY)
+
+            // dış dikdörtgeni ekrana çizdiriyoruz
+			screen.DrawImage(outerRect, outerOpt)
+
+            // iç dikdörtgenin boyutunu dış dikdörtgenin boyutundan 4 birim küçük olarak yaratıyoruz. dış dikdörtgenin ortasına yerliştirdiğimizde kenarlarda 2 birim gri çerçeve oluşmuş olacak
+			innerRect := ebiten.NewImage(size-4, size-4)
+            // iç dikdörtgenin içini beyaz renkle dolduruyoruz
+			innerRect.Fill(color.White)
+
+            innerOpt := &ebiten.DrawImageOptions{}
+            // iç dikdörtgeni, dış dikdörtgenin ortasına öteliyoruz
+			innerOpt.GeoM.Translate(rX+2, rY+2)
+
+            // iç dikdörtgeni ekrana çizdiriyoruz
+			screen.DrawImage(innerRect, innerOpt)
+		}
+	}
+}
+```
+
+### Animasyon
+
+#### Tween
+
+#### Pop
+
+#### Shake
+
+#### Flip
+
+#### Wave-Like Bounce
