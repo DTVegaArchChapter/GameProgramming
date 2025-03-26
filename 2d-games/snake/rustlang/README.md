@@ -1,6 +1,6 @@
 <div id="top"></div>
 <br>
-<img src="assets/Snake.png" alt="Rust Snake Oyunu" align="center" style="width: 100%; height: auto;">
+<img src="assets/Snake.png" alt="Rust Snake Oyunu" align="center" style="width: 50%; height: auto;">
 <br>
 
 # 🐍 Rust Snake Oyunu
@@ -13,14 +13,7 @@ Bu proje, Rust programlama dili kullanılarak geliştirilen bir Snake (Yılan) o
 - Oyunu duraklama
 - Oyun sonu ve yeniden başlatma mekanizması
 
-(<a href="#top">Başa Dön</a>)
-
-### 🛠 Kullanılan Teknolojiler
-
-- [Rust](https://www.rust-lang.org/)
-- [Piston](https://www.piston.rs/)
-
-(<a href="#top">Başa Dön</a>)
+<p align="right">(<a href="#top">Başa Dön</a>)</p>
 
 ## 🚀 Başlangıç
 
@@ -54,7 +47,7 @@ git clone https://github.com/kullanici/snake-game.git
 cargo run
 ```
 
-(<a href="#top">Başa Dön</a>)
+<p align="right">(<a href="#top">Başa Dön</a>)</p>
 
 ### Tuş Kombinasyonları
 
@@ -65,7 +58,7 @@ cargo run
   - ➡️ Sağ
 - **Boşluk Tuşu**: Oyunu duraklatma/devam ettirme
 
-(<a href="#top">Başa Dön</a>)
+<p align="right">(<a href="#top">Başa Dön</a>)</p>
 
 ## Veri Yapıları
 
@@ -105,7 +98,7 @@ pub struct Snake {
 }
 ```
 
-(<a href="#top">Başa Dön</a>)
+<p align="right">(<a href="#top">Başa Dön</a>)</p>
 
 ## 🧩 Temel Metodlar ve İşlevler
 
@@ -138,7 +131,7 @@ pub fn move_forward(&mut self, dir: Option<Direction>) {
 }
 ```
 
-(<a href="#top">Başa Dön</a>)
+<p align="right">(<a href="#top">Başa Dön</a>)</p>
 
 ### Yem Mekanizması
 
@@ -194,7 +187,7 @@ pub fn draw_block(color: Color, x: i32, y: i32, con: &Context, g: &mut G2d) {
 }
 ```
 
-(<a href="#top">Başa Dön</a>)
+<p align="right">(<a href="#top">Başa Dön</a>)</p>
 
 ### Temel İşlemler
 
