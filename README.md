@@ -21,28 +21,31 @@ Bu repo, çeşitli oyun programlama konularını öğrenmek ve pratik yapmak ist
 
 #### golang
 
-**Geliştirici**: [Bora Akgün](https://github.com/QuickOrBeDead)
-**Link**: [Tıkla](2d-games/wordle/golang)
-**Ekran Görüntüsü**
-![Wordle](./_img/wordle.png)
+|                     | Wordle                                         |
+|---------------------|------------------------------------------------|
+| **Geliştirici**     | [Bora Akgün](https://github.com/QuickOrBeDead) |
+| **Link**            | [Tıkla](2d-games/wordle/golang)                |
+| **Ekran Görüntüsü** | ![Wordle](./_img/wordle.png)                   |
 
 ### Blocks
 
 #### golang
 
-**Geliştirici**: [Bora Akgün](https://github.com/QuickOrBeDead)
-**Link**: [Tıkla](2d-games/blocks/golang)
-**Ekran Görüntüsü**
-![Wordle](./_img/blocks.png)
+|                     |Blocks                                           |
+|---------------------|------------------------------------------------|
+| **Geliştirici**     | [Bora Akgün](https://github.com/QuickOrBeDead) |
+| **Link**            | [Tıkla](2d-games/blocks/golang)                |
+| **Ekran Görüntüsü** | ![Wordle](./_img/blocks.png)                   |
 
 ### Snake
 
 #### rustlang
 
-**Geliştirici**: [Buğra Okumuş](https://github.com/bgraokmush)
-**Link**: [Tıkla](2d-games/snake/rustlang)
-**Ekran Görüntüsü**
-![Wordle](./_img/snake.png)
+|                     | Snake                                          |
+|---------------------|------------------------------------------------|
+| **Geliştirici**     | [Buğra Okumuş](https://github.com/bgraokmush)  |
+| **Link**            | [Tıkla](2d-games/snake/rustlang)               |
+| **Ekran Görüntüsü** | ![Wordle](./_img/snake.png)                    |
 
 ## Katkı
 
