@@ -38,7 +38,7 @@ cargo build
 1. Depoyu klonlayın:
 
 ```sh
-git clone https://github.com/kullanici/snake-game.git
+git clone https://github.com/bgraokmush/GameProgramming.git
 ```
 
 2. Projeyi derleyin ve çalıştırın:
