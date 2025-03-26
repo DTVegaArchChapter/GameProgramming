@@ -21,7 +21,7 @@ Bu repo, çeşitli oyun programlama konularını öğrenmek ve pratik yapmak ist
 
 #### golang
 
-|||
+|                     | Wordle                                         |
 |---------------------|------------------------------------------------|
 | **Geliştirici**     | [Bora Akgün](https://github.com/QuickOrBeDead) |
 | **Link**            | [Tıkla](2d-games/wordle/golang)                |
@@ -31,7 +31,7 @@ Bu repo, çeşitli oyun programlama konularını öğrenmek ve pratik yapmak ist
 
 #### golang
 
-|||
+|                     |Blocks                                           |
 |---------------------|------------------------------------------------|
 | **Geliştirici**     | [Bora Akgün](https://github.com/QuickOrBeDead) |
 | **Link**            | [Tıkla](2d-games/blocks/golang)                |
@@ -41,11 +41,11 @@ Bu repo, çeşitli oyun programlama konularını öğrenmek ve pratik yapmak ist
 
 #### rustlang
 
-|||
+|                     | Snake                                          |
 |---------------------|------------------------------------------------|
 | **Geliştirici**     | [Buğra Okumuş](https://github.com/bgraokmush)  |
-| **Link**            | [Tıkla](2d-games/snake/rustlang)                |
-| **Ekran Görüntüsü** | ![Wordle](./_img/snake.png)                   |
+| **Link**            | [Tıkla](2d-games/snake/rustlang)               |
+| **Ekran Görüntüsü** | ![Wordle](./_img/snake.png)                    |
 
 ## Katkı
 
