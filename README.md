@@ -22,7 +22,9 @@ Bu repo, çeşitli oyun programlama konularını öğrenmek ve pratik yapmak ist
 #### golang
 
 **Geliştirici**: [Bora Akgün](https://github.com/QuickOrBeDead)
+
 **Link**: [Tıkla](2d-games/wordle/golang)
+
 **Ekran Görüntüsü**
 ![Wordle](./_img/wordle.png)
 
@@ -31,7 +33,9 @@ Bu repo, çeşitli oyun programlama konularını öğrenmek ve pratik yapmak ist
 #### golang
 
 **Geliştirici**: [Bora Akgün](https://github.com/QuickOrBeDead)
+
 **Link**: [Tıkla](2d-games/blocks/golang)
+
 **Ekran Görüntüsü**
 ![Wordle](./_img/blocks.png)
 
@@ -40,7 +44,9 @@ Bu repo, çeşitli oyun programlama konularını öğrenmek ve pratik yapmak ist
 #### rustlang
 
 **Geliştirici**: [Buğra Okumuş](https://github.com/bgraokmush)
+
 **Link**: [Tıkla](2d-games/snake/rustlang)
+
 **Ekran Görüntüsü**
 ![Wordle](./_img/snake.png)
 
