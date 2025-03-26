@@ -47,7 +47,6 @@ Bu repo, çeşitli oyun programlama konularını öğrenmek ve pratik yapmak ist
 | **Link**            | [Tıkla](2d-games/snake/rustlang)                |
 | **Ekran Görüntüsü** | ![Wordle](./_img/snake.png)                   |
 
-
 ## Katkı
 
 Katkıda bulunmak isterseniz, lütfen [CONTRIBUTING.md](CONTRIBUTING.md) dosyasını okuyun.
