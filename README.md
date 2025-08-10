@@ -54,7 +54,7 @@ Bu repo, çeşitli oyun programlama konularını öğrenmek ve pratik yapmak ist
 |                     | Jigsaw Puzzle                                  |
 |---------------------|------------------------------------------------|
 | **Geliştirici**     | [Bora Akgün](https://github.com/QuickOrBeDead) |
-| **Link**            | [Tıkla](jigsaw-puzzle/golang)                  |
+| **Link**            | [Tıkla](2d-games/jigsaw-puzzle/golang)                  |
 | **Ekran Görüntüsü** | ![Jigsaw Puzzle](./_img/jigsaw-puzzle.png)    |
 
 ## Katkı
