@@ -47,6 +47,16 @@ Bu repo, çeşitli oyun programlama konularını öğrenmek ve pratik yapmak ist
 | **Link**            | [Tıkla](2d-games/snake/rustlang)               |
 | **Ekran Görüntüsü** | ![Wordle](./_img/snake.png)                    |
 
+### Jigsaw Puzzle
+
+#### golang
+
+|                     | Jigsaw Puzzle                                  |
+|---------------------|------------------------------------------------|
+| **Geliştirici**     | [Bora Akgün](https://github.com/QuickOrBeDead) |
+| **Link**            | [Tıkla](2d-games/jigsaw-puzzle/golang)                  |
+| **Ekran Görüntüsü** | ![Jigsaw Puzzle](./_img/jigsaw-puzzle.png)    |
+
 ## Katkı
 
 Katkıda bulunmak isterseniz, lütfen [CONTRIBUTING.md](CONTRIBUTING.md) dosyasını okuyun.
