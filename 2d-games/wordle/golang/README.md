@@ -10,6 +10,7 @@ Oyun her tahmin edilen kelime için hedef kelime içerisinde mevcut ama yanlış
 `hedef kelime içerisinde mevcut ve doğru konumdaki harf => Yeşil`
 
 Eğer tüm harfler hedef kelime içerisinde mevcut ve doğru konumda ise tüm harfler yeşil olur ve oyunu kazanırsınız.
+
 Eğer 6 denemede hedef kelimeyi tahmin edemezseniz oyunu kaybedersiniz.
 
 ## Ekran Görüntüsü
@@ -137,12 +138,114 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 ### Animasyon
 
+Bu projede animasyonlar `Tween` altyapısı ile tick bazlı (frame-based) ilerler. Varsayılan TPS=60 olduğu için 0.5 saniyelik bir animasyon süresi `0.5 * 60` tick olarak tanımlanır. `Tween` mantığı `game/tween.go` dosyasındadır.
+
+- Zaman normalizasyonu: `s = elapsed / duration, 0 ≤ s ≤ 1, 0 ≤ elapsed ≤ duration`
+- Doğrusal geçiş (LERP): `v(s) = begin + (end - begin) * s`
+
+`Tween.Update(dt)` her tick çağrılır; v(s) hesaplanıp `updateFunc(v)` ile nesnenin durumu güncellenir, bitince `completedFunc()` tetiklenir.
+
 #### Tween
+
+- Dosya: `game/tween.go`
+- Fonksiyon: Linear
+
+$$v(t) = b + (e - b)\frac{t}{d}$$
+
+- b: başlangıç, e: bitiş, d: süre (tick), t: geçen tick.
+- Kodda: `LinearTweenFunc(elapsed, begin, end, duration)`.
 
 #### Pop
 
+Harf eklendiğinde kutu kısa süre şişer. Dosya: `game/tile.go` → `setRune`.
+
+- Ölçek fonksiyonu:
+
+$$scale(s) = 1 + 0.06\,\sin(\pi s),\quad s\in[0,1]$$
+
+- s = 0 için sin(0) = 0 → scale = 1
+- s = 0.5 için sin(π/2) = 1 → scale = 1.06 (tepe)
+- s = 1 için sin(π) = 0 → scale = 1 (başlangıç değerine geri döner)
+
+Merkeze göre ölçeklemek için önce merkeze taşı, ölçekle, geri taşı yapılır: `Translate(-m,-m) → Scale(scale, scale) → Translate(m,m)`; burada m = size/2.
+
+Grafik (ölçek - zaman):
+
+```
+scale
+1.06             ▲
+1.03            / \
+1.01           /   \
+1.00 ─────────┴─────┴────────
+           0    0.5    1  (s)
+```
+
+##### Trigonometrik Hatırlatma: Sinüs ve Birim Çember
+
+- sin(θ), birim çember üzerinde noktanın y-koordinatıdır.
+- Temel değerler: sin(0)=0, sin(π/2)=1, sin(π)=0, sin(3π/2)=-1.
+
+Birim çember – sinüs değerleri y‑ekseninde ölçülür (y=0 çizgisi sin=0’dır):
+
+```
+                          sin=+1
+                             ↑
+                       (0,1) ●   θ=π/2
+                             │
+                             │
+                             │
+     sin=0 ← (-1,0) ●────────┼────────● (1,0) → sin=0 
+                   θ=π       │        θ=0
+                             │
+                             │         
+                      θ=3π/2 ● (0,-1)
+                             ↓
+                          sin=-1
+```
+
 #### Shake
+
+Geçersiz kelimede kutu yatay olarak sağa ve sola titrer. Dosya: `game/tile.go` → `shake`.
+
+- Konum fonksiyonu (3 tam dalga):
+
+$$x(s) = x_0 + 5\,\sin(3\cdot 2\pi s),\quad s\in[0,1]$$
+
+- Amplitüd 5 px, süre 0.5 s.
+
+Grafik (y ofset):
+
+![Shake ofset grafiği — y = 5·sin(6πs)](./shake-sin.png "x(s) − x0 = 5·sin(6πs), s∈[0,1]")
 
 #### Flip
 
+Harf kontrolünde kutu dikey eksende çevrilir. Dosya: `game/tile.go` → `flip`.
+
+- Açı ve ölçek:
+
+$$\quad scale_Y(s) = |\cos(\pi s)|,\quad s\in[0,1]$$
+
+- s=0.5’te scale_Y=0 ile “ince kenar” görünümü, s>0.5’te yüz değişimi yapılır. Kodda `t.flipped = cos(π s) < 0` ile orta noktada arka yüz (renk) devreye girer.
+- Uygulanan dönüşümler: `Translate(0, -size/2) → Scale(1, |cos|) → Translate(0, size/2)`.
+
+Grafik:
+
+![Flip scale grafiği](./flip-cos.png)
+
 #### Wave-Like Bounce
+
+Kazanma kutlama animasyonu dalga benzeri zıplamadır. Dosya: `game/tile.go` → `celebrateWin`.
+
+- Dikey ofset:
+
+$$y(s) = y_0 - 10\,\sin(\pi s)$$
+
+- s ∈ [0,1], tepe +10 px, baş/son 0 px.
+- Sütuna bağlı gecikme ile dalga etkisi: `appendDelayTween` kullanılır.
+  - `DelayWin(c) = (cols - c - 1) · flipDuration + c · bounceDuration`
+
+### Notlar
+
+- `Update()` içinde her tickin başında aktif tween baştan sona güncellenir: ilk eleman `Update(1)` ile ilerler, bittiğinde kuyruktan çıkar.
+- Süreler tick cinsindendir; gerçek süre = (tick / TPS).
+-  `flip` sırasında renk değişimi tam orta noktada gerçekleşir; `updateBackgroundColor()` `flipped` durumuna göre rengi seçer.
